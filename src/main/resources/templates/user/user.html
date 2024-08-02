@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Historial Usuario</title>
+	<link rel="stylesheet" href="../../../static/css/bootstrap.css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="../../../static/css/estilos.css" th:href="@{/css/estilos.css}" />
+	<link rel="stylesheet" href="../../../static/css/mediaq.css" th:href="@{/css/mediaq.css}" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" />
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+	<script src="https://kit.fontawesome.com/91eae316a2.js"></script>
+	<script src="/static/js/jquery-3.7.1.min.js" th:src="@{/js/jquery-3.7.1.min.js}"></script>
+	<link rel="stylesheet" href="/static/css/datatables.css" th:href="@{/css/datatables.css}">
+	<script src="/static/js/datatables.min.js" th:src="@{/js/datatables.min.js}"></script>
+	<link rel="icon" type="image/jpg" href="/static/img/favicon.png" th:href="@{/img/favicon.png}" />
+</head>
+
+<body>
+	<header class="header inicio">
+		<div class="container contenido-navegacion">
+			<div class="titulo-header">
+				<a href="../../index.html" th:href="@{/index}">
+					<h1>Sala</h1>
+					<h1>Corazón</h1>
+				</a>
+			</div>
+			<div class="login-header">
+				<nav class="navegacion">
+					<div th:if="${!#authorization.expression('isAuthenticated()')}">
+						<a href="login.html" class="fs-2  " th:href="@{/login}">Inicia sesión</a>
+					</div>
+					<div class="dropdown" sec:authorize="hasRole('USER')">
+						<button href="./user/user.html" th:href="@{/user/user}" sec:authentication="principal.username"
+							class="dropdown-toggle boton-drop fs-2" type="button" data-bs-toggle="dropdown"
+							aria-expanded="false"></button>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item desplegable " href="./user/user.html" th:href="@{/user/user}">Mi
+									Cuenta</a>
+							</li>
+							<li><a class="dropdown-item desplegable" th:href="@{/logout}">Cerrar Sesión</a></li>
+						</ul>
+					</div>
+					<div class="dropdown " sec:authorize="hasRole('ADMIN')">
+						<button href="./admin/admin.html" th:href="@{/admin}" class="dropdown-toggle boton-drop fs-2"
+							type="button" data-bs-toggle="dropdown" aria-expanded="false"
+							th:text="${#authentication.principal.username + ' (Admin)'}"></button>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-item desplegable " href="./admin/concierto/listadoconciertos.html"
+									th:href="@{/concierto/listadoconciertos}">Conciertos</a></li>
+							<li><a class="dropdown-item desplegable " href="./admin/grupo/listadogrupos.html"
+									th:href="@{/grupo/listadogrupos}">Grupos</a></li>
+							<li><a class="dropdown-item desplegable " href="./admin/usuario/listadousuarios.html"
+									th:href="@{/usuario/listadousuarios}">Usuarios</a></li>
+							<li><a class="dropdown-item desplegable " href="./admin/venta/listadoventas.html"
+									th:href="@{/venta/listadoventas}">Ventas</a></li>
+							<li><a class="dropdown-item desplegable " href="./admin/rol/listadoroles.html"
+									th:href="@{/rol/listadoroles}">Roles</a>
+							</li>
+							<li><a class="dropdown-item desplegable " href="/templates/user/user.html"
+									th:href="@{/user/user}">Vista
+									Usuario</a>
+							</li>
+
+							<li><a class="dropdown-item desplegable" th:href="@{/logout}">Cerrar Sesión</a></li>
+						</ul>
+					</div>
+				</nav>
+			</div>
+		</div>
+	</header>
+	<nav class="navegacion-usuario">
+		<ul>
+			<li class="busca-por-fechas">Busca por fechas</li>
+			<li class="micuenta"><a class="" data-bs-toggle="offcanvas" href="#micuenta" role="button"
+					aria-controls="offcanvasExample">Mi Cuenta</a></li>
+		</ul>
+
+	</nav>
+	<main class="alto-screen centrar">
+
+		<div class="offcanvas offcanvas-end" tabindex="-1" id="micuenta" aria-labelledby="offcanvasExampleLabel">
+			<div class="offcanvas-header">
+				<h4 class="offcanvas-title" id="offcanvasExampleLabel">Mi cuenta</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body">
+				<div class="micuenta-body">
+					<h5 class="text-decoration-underline mb-5">Datos Personales</h5>
+					<p>Nombre: <span th:text="${usuario.username + ' ' + usuario.apellidos}"></span></p>
+					<p>Fecha de nacimiento: <span
+							th:text="${#temporals.day(usuario.fechanacimiento) + ' - ' + #strings.capitalize(#temporals.monthName(usuario.fechanacimiento)) + ' - ' + #temporals.year(usuario.fechanacimiento)}"></span>
+					</p>
+					<p>Edad: <span th:text="${edad} "></span></p>
+					<p>Registrado desde: <span
+							th:text="${#temporals.day(usuario.fecharegistro) + ' - ' + #strings.capitalize(#temporals.monthName(usuario.fecharegistro)) + ' - ' + #temporals.year(usuario.fecharegistro)}"></span>
+					</p>
+					<a th:href="@{/user/darsedebaja}" class="boton corporativo" id="baja">
+						Quiero darme de baja
+					</a>
+
+				</div>
+
+			</div>
+		</div>
+		<div class="contenedor-interior">
+			<section id="busca_por_fecha_form" class="busca-por-fecha-form">
+				<form th:action="@{/user/findByFechaBetween}">
+					<div class="row">
+						<div class="col">
+							<label for="f_inicio" class="form-label text-white">Fecha Inicio</label>
+							<input type="date" class="form-control fs-2" id="f_inicio" name="f_inicio"
+								 required>
+						</div>
+						<div class="col">
+							<label for="f_fin" class="form-label text-white">Fecha Fin</label>
+							<input type="date" class="form-control fs-2" id="f_fin" name="f_fin" required>
+						</div>
+					</div>
+					<div class="col-12">
+						<button type="submit" class="boton corporativo mt-3 border border-1 ">Buscar</button>
+					</div>
+				</form>
+
+			</section>
+			<section th:unless="${#lists.isEmpty(conciertos)}">
+				<h1 th:text="${fechas}"></h1>
+				<div class="contenido-conciertos">
+					<div class="card my-5 contenido-historial py-5" th:each="c: ${conciertos}">
+						<div class="row g-0 align-items-center">
+							<div class="col-md-5">
+
+								<a th:href="@{/public/findgrupobyid(idgrupo = ${c.grupo.idgrupo})}"
+									href="vistaconcierto.html">
+									<img th:src="@{${c.grupo.imagen}}" class="rounded-start"
+										src="/static/img/multitud.jpg" alt="multitud" th:alt="${'Foto de ' + c.grupo.nombre}" /></a>
+
+							</div>
+							<div class="col-md-7">
+								<div class="card-body px-4 rounded-end-1 rounded-start-0">
+									<h3 class="card-title" th:text="${c.grupo.nombre}">Nombre del Grupo</h3>
+									<p class="card-text" th:text="${c.intro}">Texto de prueba
+									</p>
+									<p class="card-text" th:text="${#temporals.format(c.fecha, 'dd/MM/yyyy')}">
+										21/05/2023</p>
+									<p class="card-text" th:text="${c.hora}">21:30</p>
+									<p th:if="${c.fecha gt now}" class="card-text text-end">
+										<a th:href="@{/user/compra(idconcierto=${c.idconcierto})}"
+											href="./user/forminsertar.html" class="boton compra-entradas mt-5">Compra
+											entradas</a>
+									</p>
+									<p th:if="${c.fecha lt now}" class="boton compra-entradas mt-5 text-center">
+										El evento ha pasado
+									</p>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+			<section th:if="${ventas}">
+				<h3 class="text-center p-3">Historial de compras</h3>
+				<div class="concierto-usuario sombra-negra mb-3" th:each=" v : ${ventas}">
+
+					<div class="row align-items-center contenido-historial">
+						<div class="col-md-6 text-center my-5">
+
+							<img th:src="@{${v.concierto.grupo.imagen}}" class="w-100" src="/static/img/thepolice1.jpeg"
+								th:alt="${'Foto de ' + v.concierto.grupo.nombre}" />
+						</div>
+						<div class="col-md-6 p-4 my-5">
+							<h3 th:text="${v.concierto.grupo.nombre}" class="text-start">The Police</h3>
+							<p class="fs-2 text-uppercase">Fecha:</p>
+							<p th:text="${#temporals.format(v.concierto.fecha, 'dd/MM/yyyy')}" class="info">11/10/2023
+							</p>
+							<p class="fs-2 text-uppercase">Hora:</p>
+							<p th:text="${v.concierto.hora}" class="info">20:30</p>
+							<p class="fs-2 text-uppercase">Entradas adquiridas: </p>
+							<p th:text="${v.numeroentradas}" class="info">4</p>
+							<p class="fs-2 text-uppercase">Fecha y hora de la compra: </p>
+							<p th:text="${v.fechaventa + ' - ' + v.horaventa }" class="info">9/11/2023 - 21:11</p>
+						</div>
+
+					</div>
+				</div>
+
+
+			</section>
+
+			<div class="my-5">
+				<a class="boton corporativo" th:href="@{/index}" href="../index.html">Atrás</a>
+			</div>
+		</div>
+	</main>
+	<!-- FOOTER -->
+	<footer class="footer">
+		<div class="contenido-footer row align-items-center">
+			<div class="redes col-sm-12 col-md-4">
+				<ul class=" text-white">
+					<li><i class="fa-brands fa-facebook"></i></li>
+					<li><i class="fa-brands fa-x-twitter"></i></li>
+					<li><i class="fa-brands fa-square-instagram"></i></li>
+				</ul>
+			</div>
+			<div class="col-sm-12 col-md-4 titulo-footer">
+				<div class=" text-center">
+					<a href="./index.html" th:href="@{/index}">
+						<h1>Sala</h1>
+						<h1>Corazón</h1>
+					</a>
+				</div>
+
+			</div>
+			<div class="datos col-sm-12 col-md-4">
+				<ul class=" text-white">
+					<li>C/Felicidad, 20</li>
+					<li>33205, Gijón</li>
+					<li><i class="fa-brands fa-whatsapp"></i> 666 888 222</li>
+					<li><i class="fa-regular fa-envelope"></i> salacorazon@info.com</li>
+				</ul>
+			</div>
+		</div>
+		<div class="last-line contenido-footer">
+			<div class="copyright">
+			</div>
+		</div>
+	</footer>
+	<!-- FIN FOOTER -->
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+		integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+		integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="/static/js/script.js" th:src="@{/js/script.js}"></script>
+	<script th:if="${msgError}" th:inline="javascript">
+		var mensajeError = /*[[${msgError}]]*/'';
+		Swal.fire({
+			icon: 'warning',
+			title: '¡Atención!',
+			text: mensajeError,
+			confirmButtonColor: "#20c997",
+			width: "40rem",
+			padding: "1rem"
+		});
+	</script>
+	<script th:if="${mensaje}" th:inline="javascript">
+		var mensaje = /*[[${mensaje}]]*/'';
+		Swal.fire({
+			icon: 'warning',
+			title: '¡Atención!',
+			text: mensaje,
+			confirmButtonColor: "#20c997",
+			width: "40rem",
+			padding: "1rem"
+		});
+	</script>
+</body>
+
+</html>
